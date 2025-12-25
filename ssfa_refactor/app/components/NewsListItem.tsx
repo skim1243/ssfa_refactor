@@ -21,7 +21,9 @@ export const NewsListItem: React.FC<NewsListItemProps> = ({
   return (
     <div className={`flex flex-col md:flex-row items-start md:items-center p-4 rounded-lg shadow-md ${backgroundColor}`}>
       <div className="w-full md:w-1/4 pr-4 mb-4 md:mb-0">
-        <Image src={image} alt={title} width={200} height={150} layout="responsive" objectFit="cover" />
+        <Link href={link}>
+          <Image src={image} alt={title} width={200} height={150} layout="responsive" objectFit="cover" />
+        </Link>
       </div>
       <div className="w-full md:w-3/4">
         <h3 className="text-lg font-bold mb-1">

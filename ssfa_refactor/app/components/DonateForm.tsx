@@ -233,7 +233,7 @@ export default function DonateForm() {
                 type="text"
                 value={formData.firstName}
                 onChange={(e) => handleInputChange('firstName', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="John"
               />
               {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
@@ -244,7 +244,7 @@ export default function DonateForm() {
                 type="text"
                 value={formData.lastName}
                 onChange={(e) => handleInputChange('lastName', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="Doe"
               />
               {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
@@ -255,7 +255,7 @@ export default function DonateForm() {
                 type="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="john.doe@email.com"
               />
               {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
@@ -266,7 +266,7 @@ export default function DonateForm() {
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="(555) 123-4567"
               />
             </div>
@@ -309,7 +309,7 @@ export default function DonateForm() {
               type="number"
               value={formData.amount || ''}
               onChange={(e) => handleInputChange('amount', parseFloat(e.target.value) || 0)}
-              className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                    className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
               placeholder="Enter custom amount"
               min="1"
               step="0.01"
@@ -416,7 +416,7 @@ export default function DonateForm() {
                   type="text"
                   value={formData.cardholderName}
                   onChange={(e) => handleInputChange('cardholderName', e.target.value)}
-                  className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                  className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                   placeholder="John Doe"
                 />
                 {errors.cardholderName && <p className="text-red-500 text-sm mt-1">{errors.cardholderName}</p>}
@@ -427,7 +427,7 @@ export default function DonateForm() {
                   type="text"
                   value={formData.cardNumber}
                   onChange={(e) => handleInputChange('cardNumber', e.target.value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim())}
-                  className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                  className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                   placeholder="1234 5678 9012 3456"
                   maxLength={19}
                 />
@@ -439,7 +439,7 @@ export default function DonateForm() {
                   <select
                     value={formData.expiryMonth}
                     onChange={(e) => handleInputChange('expiryMonth', e.target.value)}
-                    className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                    className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                   >
                     <option value="">MM</option>
                     {Array.from({ length: 12 }, (_, i) => (
@@ -454,7 +454,7 @@ export default function DonateForm() {
                   <select
                     value={formData.expiryYear}
                     onChange={(e) => handleInputChange('expiryYear', e.target.value)}
-                    className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                    className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                   >
                     <option value="">YYYY</option>
                     {Array.from({ length: 10 }, (_, i) => (
@@ -470,7 +470,7 @@ export default function DonateForm() {
                     type="text"
                     value={formData.cvv}
                     onChange={(e) => handleInputChange('cvv', e.target.value.replace(/\D/g, '').slice(0, 4))}
-                    className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                    className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                     placeholder="123"
                     maxLength={4}
                   />
@@ -512,7 +512,7 @@ export default function DonateForm() {
                 type="text"
                 value={formData.billingAddress.street}
                 onChange={(e) => handleAddressChange('street', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="123 Main Street"
               />
             </div>
@@ -522,7 +522,7 @@ export default function DonateForm() {
                 type="text"
                 value={formData.billingAddress.city}
                 onChange={(e) => handleAddressChange('city', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="New York"
               />
             </div>
@@ -532,7 +532,7 @@ export default function DonateForm() {
                 type="text"
                 value={formData.billingAddress.state}
                 onChange={(e) => handleAddressChange('state', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="NY"
               />
             </div>
@@ -542,7 +542,7 @@ export default function DonateForm() {
                 type="text"
                 value={formData.billingAddress.zipCode}
                 onChange={(e) => handleAddressChange('zipCode', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
                 placeholder="10001"
               />
             </div>
@@ -551,7 +551,7 @@ export default function DonateForm() {
               <select
                 value={formData.billingAddress.country}
                 onChange={(e) => handleAddressChange('country', e.target.value)}
-                className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
               >
                 <option value="USA">United States</option>
                 <option value="CAN">Canada</option>
@@ -570,7 +570,7 @@ export default function DonateForm() {
             <textarea
               value={formData.comments}
               onChange={(e) => handleInputChange('comments', e.target.value)}
-              className="w-full p-3 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                    className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
               rows={4}
               placeholder="Any special notes or dedication..."
             />

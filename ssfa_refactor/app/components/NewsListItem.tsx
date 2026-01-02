@@ -22,7 +22,17 @@ export const NewsListItem: React.FC<NewsListItemProps> = ({
     <div className={`flex flex-col md:flex-row items-start md:items-center p-4 rounded-lg shadow-md ${backgroundColor}`}>
       <div className="w-full md:w-1/4 pr-4 mb-4 md:mb-0">
         <Link href={link}>
-          <Image src={image} alt={title} width={200} height={150} layout="responsive" objectFit="cover" />
+          <Image
+            src={image}
+            alt={title}
+            width={200}
+            height={150}
+            style={{ objectFit: 'cover' }}
+            className="w-full h-auto rounded"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder-image.svg';
+            }}
+          />
         </Link>
       </div>
       <div className="w-full md:w-3/4">
@@ -31,8 +41,8 @@ export const NewsListItem: React.FC<NewsListItemProps> = ({
             {title}
           </Link>
         </h3>
-        <p className="text-gray-700 text-sm mb-1">{description}</p>
-        <p className="text-gray-500 text-xs">{date}</p>
+        <p className="text-black text-sm mb-1">{description}</p>
+        <p className="text-black text-xs">{date}</p>
       </div>
     </div>
   );

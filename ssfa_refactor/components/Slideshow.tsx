@@ -20,7 +20,7 @@ export const Slideshow = () => {
   };
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center bg-gray-400 text-white">
+    <div className="relative w-full h-full flex items-center justify-center bg-gray-400 text-black">
       <button onClick={prevSlide} className="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-700 bg-opacity-50 p-2 rounded-full z-10">
         &lt;
       </button>

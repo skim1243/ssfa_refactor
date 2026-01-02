@@ -14,7 +14,7 @@ export default function Home() {
             title="First News Item"
             description="A brief description of the first news item."
             date="December 24, 2025"
-            link="/news/1"
+            link="#"
             image="/placeholder-image.svg"
             backgroundColor="bg-white"
           />
@@ -22,7 +22,7 @@ export default function Home() {
             title="Second News Item"
             description="Another brief description of the second news item."
             date="December 23, 2025"
-            link="/news/2"
+            link="#"
             image="/placeholder-image.svg"
             backgroundColor="bg-gray-100"
           />
@@ -30,7 +30,7 @@ export default function Home() {
             title="Third News Item"
             description="The third news item's description."
             date="December 22, 2025"
-            link="/news/3"
+            link="#"
             image="/placeholder-image.svg"
             backgroundColor="bg-white"
           />

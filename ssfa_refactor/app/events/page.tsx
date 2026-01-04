@@ -1,7 +1,7 @@
 import { NewsListItem } from '../components/NewsListItem';
 
 export default function Events() {
-  const placeholderImage = "/placeholder-image.jpg"; // You might want to add a real placeholder image
+  const placeholderImage = "/placeholder-image.svg";
 
   const newsItems = Array.from({ length: 10 }).map((_, index) => ({
     title: `Event Title ${index + 1}`,

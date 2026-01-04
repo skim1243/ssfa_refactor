@@ -31,6 +31,7 @@ export const NewsListItem: React.FC<NewsListItemProps> = ({
             height={150}
             style={{ objectFit: 'cover' }}
             className="w-full h-auto rounded"
+            unoptimized
             onError={(e) => {
               e.currentTarget.src = '/placeholder-image.svg';
             }}

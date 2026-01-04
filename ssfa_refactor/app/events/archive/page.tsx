@@ -1,7 +1,7 @@
 import { NewsListItem } from '../../components/NewsListItem';
 
 export default function EventsArchive() {
-  const placeholderImage = "/placeholder-image.jpg";
+  const placeholderImage = "/placeholder-image.svg";
 
   // Create more events for the archive
   const allEvents = Array.from({ length: 25 }).map((_, index) => ({

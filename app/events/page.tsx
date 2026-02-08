@@ -1,15 +1,9 @@
-import { createServerClient } from '../utils/supabase/server'
 import { NewsListItem } from '../components/NewsListItem';
 
+const PLACEHOLDER_ARTICLES: { id: string; title: string; excerpt: string; published_at: string; slug: string; featured_image: string }[] = [];
+
 export default async function Events() {
-  // Fetch the 10 most recent published articles
-  const supabase = createServerClient()
-  const { data: recentArticles } = await supabase
-    .from('articles')
-    .select('*')
-    .eq('status', 'published')
-    .order('published_at', { ascending: false })
-    .limit(10)
+  const recentArticles = PLACEHOLDER_ARTICLES;
 
   return (
     <div className="container mx-auto p-4 flex flex-col items-center">
@@ -19,24 +13,23 @@ export default async function Events() {
       </p>
 
       <div className="grid gap-4 w-full md:w-3/4">
-        {recentArticles && recentArticles.length > 0 ? (
-          recentArticles.map((article: any, index: number) => (
+        {recentArticles.length > 0 ? (
+          recentArticles.map((article, index: number) => (
             <NewsListItem
               key={article.id}
               title={article.title}
-              description={article.excerpt || article.content?.find((el: any) => el.type === 'text')?.content?.substring(0, 150) + '...' || 'Read the full article...'}
+              description={article.excerpt || 'Read the full article...'}
               date={new Date(article.published_at).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric'
               })}
-              link={`/articles/${article.slug}`}
+              link={`/events/${article.slug}`}
               image={article.featured_image || "/placeholder-image.svg"}
               backgroundColor={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}
             />
           ))
         ) : (
-          // Fallback content when no articles exist
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">No articles published yet.</p>
             <p className="text-gray-400 mt-2">Check back soon for updates!</p>

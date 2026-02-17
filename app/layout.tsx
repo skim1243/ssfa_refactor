@@ -1,24 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import NavBar from "./components/NavBar";
 import Footer from "./components/Footer";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 // Client component to handle hydration mismatches caused by browser extensions
 function BodyContent({ children }: { children: React.ReactNode }) {
   return (
     <body
-      className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+      className={`${GeistSans.variable} ${GeistMono.variable} antialiased flex flex-col min-h-screen`}
       suppressHydrationWarning={true}
     >
       <NavBar />

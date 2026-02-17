@@ -1,17 +1,17 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
-
-export function createClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY
-
-  if (!supabaseUrl || !supabaseKey) {
+function requiredEnv(name: string): string {
+  const value = process.env[name]
+  if (!value) {
     throw new Error(
-      'Missing Supabase env vars. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY in .env.local'
+      `Missing environment variable: ${name}. Set it in your environment (and in .env.local for local development).`
     )
   }
+  return value
+}
+
+const supabaseUrl = requiredEnv('NEXT_PUBLIC_SUPABASE_URL')
+const supabaseKey = requiredEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY')
 
   return createBrowserClient(supabaseUrl, supabaseKey)
 }

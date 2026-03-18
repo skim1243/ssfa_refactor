@@ -13,5 +13,6 @@ function requiredEnv(name: string): string {
 const supabaseUrl = requiredEnv('NEXT_PUBLIC_SUPABASE_URL')
 const supabaseKey = requiredEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY')
 
+export function createClient() {
   return createBrowserClient(supabaseUrl, supabaseKey)
 }

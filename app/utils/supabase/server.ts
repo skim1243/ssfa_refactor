@@ -19,12 +19,14 @@ export async function createServerClient() {
         return cookieStore.getAll()
       },
       setAll(cookiesToSet) {
+        // In Server Components, cookies are read-only. This method is still
+        // required for middleware/actions/route handlers where writes are allowed.
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
             cookieStore.set(name, value, options)
           )
         } catch {
-          // Ignore in Server Components
+          // Ignore write attempts in read-only contexts.
         }
       },
     },

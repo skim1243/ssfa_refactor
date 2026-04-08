@@ -18,11 +18,9 @@ export default async function AdminPortal() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Portal</h1>
-        <p className="text-gray-600">Admin content coming soon.</p>
-      </div>
-    </main>
+    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <h1 className="mb-2 text-3xl font-bold text-gray-900">Admin Portal</h1>
+      <p className="text-gray-600">Dashboard</p>
+    </div>
   )
 }

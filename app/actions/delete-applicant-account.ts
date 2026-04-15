@@ -36,19 +36,19 @@ export async function deleteApplicantAccountAndApplication(params: { targetUserI
   const { error: appErr } = await admin.from('Applications').delete().eq('user_id', targetUserId)
   if (appErr) {
     console.error('DELETE APPLICATIONS:', appErr)
-    return { error: appErr.message as const }
+    return { error: appErr.message}
   }
 
   const { error: roleErr } = await admin.from('user_roles').delete().eq('user', targetUserId)
   if (roleErr) {
     console.error('DELETE USER ROLES:', roleErr)
-    return { error: roleErr.message as const }
+    return { error: roleErr.message}
   }
 
   const { error: authErr } = await admin.auth.admin.deleteUser(targetUserId)
   if (authErr) {
     console.error('DELETE AUTH USER:', authErr)
-    return { error: authErr.message as const }
+    return { error: authErr.message}
   }
 
   revalidatePath('/admin/applications')

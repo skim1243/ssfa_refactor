@@ -44,10 +44,6 @@ export default async function ApplicantPortal() {
     .maybeSingle()
 
   const row = application as Record<string, unknown> | null
-  const applicationCycle =
-    (row?.applicationCycle as string | undefined) ??
-    (row?.application_cycle as string | undefined) ??
-    'N/A'
   const applicantEmail =
     (row?.email as string | undefined) ?? user.email ?? 'N/A'
   const completionStatus =
@@ -85,9 +81,7 @@ export default async function ApplicantPortal() {
             style={{ borderColor: 'var(--color-yellow)' }}
           >
             <div className="text-sm leading-relaxed text-black">
-              <p className="mb-4 font-semibold text-black">
-                {applicationCycle} SSFA Application Status
-              </p>
+              <p className="mb-4 font-semibold text-black">SSFA Application Status</p>
               <div className="space-y-2 text-sm text-black">
                 <p>
                   <span className="inline-block min-w-[14rem] text-black">
@@ -112,12 +106,6 @@ export default async function ApplicantPortal() {
                     Application Completion Date:
                   </span>
                   <span>{formatSubmissionDate(submissionDate)}</span>
-                </p>
-                <p>
-                  <span className="inline-block min-w-[14rem] text-black">
-                    Application Type:
-                  </span>
-                  <span>Graduate</span>
                 </p>
               </div>
             </div>

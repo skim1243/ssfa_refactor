@@ -46,7 +46,7 @@ export async function registerApplicant(
     return { error: roleError.message }
   }
 
-  // Empty application row: only user_id, cycle, and status fields set; rest null.
+  // Empty application row: only user_id and status fields set; rest null.
   // Keys must match Supabase column names (adjust if your DB uses snake_case).
   const { error: applicationError } = await supabase.from('Applications').insert({
     user_id: user.id,
@@ -66,7 +66,6 @@ export async function registerApplicant(
     completionStatus: 'Pending',
     acceptenceStatus: 'Pending',
     submissionDate: null,
-    applicationCycle: 'Fall 2026',
   })
 
   if (applicationError) {

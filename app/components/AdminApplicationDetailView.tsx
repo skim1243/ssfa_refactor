@@ -50,7 +50,6 @@ const INFO_ROWS: { camel: string; snake: string; label: string }[] = [
   { camel: 'completionStatus', snake: 'completion_status', label: 'Completion status' },
   { camel: 'acceptenceStatus', snake: 'acceptence_status', label: 'Acceptance status' },
   { camel: 'submissionDate', snake: 'submission_date', label: 'Submission date' },
-  { camel: 'applicationCycle', snake: 'application_cycle', label: 'Application cycle' },
 ]
 
 type Props = {

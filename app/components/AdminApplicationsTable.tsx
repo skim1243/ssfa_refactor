@@ -132,7 +132,6 @@ type FilterState = {
   acceptanceStatus: string
   submissionDateFrom: string
   submissionDateTo: string
-  applicationCycle: string
 }
 
 const initialFilters: FilterState = {
@@ -144,7 +143,6 @@ const initialFilters: FilterState = {
   acceptanceStatus: '',
   submissionDateFrom: '',
   submissionDateTo: '',
-  applicationCycle: '',
 }
 
 function filterRows(rows: ApplicationRow[], f: FilterState): ApplicationRow[] {
@@ -182,13 +180,6 @@ function filterRows(rows: ApplicationRow[], f: FilterState): ApplicationRow[] {
       if (a !== f.acceptanceStatus) return false
     }
 
-    if (f.applicationCycle) {
-      const cycle =
-        normExact(pickField(row, 'applicationCycle', 'application_cycle')) ||
-        normExact(pickField(row, 'application_cycle', 'application_cycle'))
-      if (cycle !== f.applicationCycle) return false
-    }
-
     if (fromDay != null || toDay != null) {
       const day = rowSubmissionDay(row)
       if (day == null) return false
@@ -219,11 +210,6 @@ export function AdminApplicationsTable({ applications }: Props) {
     () => uniqueSortedStrings(applications, 'completionStatus', 'completion_status'),
     [applications]
   )
-  const cycleOptions = useMemo(
-    () => uniqueSortedStrings(applications, 'applicationCycle', 'application_cycle'),
-    [applications]
-  )
-
   const filteredApplications = useMemo(
     () => filterRows(applications, filters),
     [applications, filters]
@@ -341,24 +327,6 @@ export function AdminApplicationsTable({ applications }: Props) {
             >
               <option value="">All</option>
               {ACCEPTANCE_ROW_OPTIONS.map((v) => (
-                <option key={v} value={v}>
-                  {v}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="filter-cycle">
-              Application cycle
-            </label>
-            <select
-              id="filter-cycle"
-              value={filters.applicationCycle}
-              onChange={(e) => setFilter('applicationCycle', e.target.value)}
-              className={inputClass}
-            >
-              <option value="">All</option>
-              {cycleOptions.map((v) => (
                 <option key={v} value={v}>
                   {v}
                 </option>

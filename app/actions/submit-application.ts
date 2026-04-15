@@ -32,10 +32,11 @@ export async function submitApplication() {
 
   if (!user) return { error: 'You must be signed in.' }
 
-  const requiredSelect = REQUIRED_FIELDS.map((f) => f.column).join(', ')
   const { data: current, error: readError } = await supabase
     .from('Applications')
-    .select(`completionStatus, ${requiredSelect}`)
+    .select(
+      'completionStatus, firstName, lastName, phoneNumber, email, school, grade, major, enrollmentDoc, officialTranscript, incomeTax, introVideo, evidenceFile'
+    )
     .eq('user_id', user.id)
     .maybeSingle()
 

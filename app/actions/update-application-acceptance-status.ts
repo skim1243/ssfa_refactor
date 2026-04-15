@@ -42,7 +42,7 @@ export async function updateApplicationAcceptanceStatus(payload: {
 
   if (error) {
     console.error('UPDATE APPLICATION ACCEPTANCE:', error)
-    return { error: error.message as const }
+    return { error: error.message }
   }
 
   revalidatePath('/admin/applications')

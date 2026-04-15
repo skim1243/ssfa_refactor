@@ -17,7 +17,7 @@ export default async function EventsArchive() {
   const supabase = await createServerClient();
   const { data: archivedArticles } = await supabase
     .from('Articles')
-    .select('id, title, shortDescription, short_description, datePublished, date_published, link, titleImage, title_image')
+    .select('*')
     .eq('status', 'archive')
     .not('link', 'is', null)
     .order('datePublished', { ascending: false });

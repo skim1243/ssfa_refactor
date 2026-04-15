@@ -36,6 +36,12 @@ export async function deleteArticle(params: { id: string | number }) {
     return { error: 'Missing SUPABASE_SERVICE_ROLE_KEY on server.' as const }
   }
 
+  const { data: existingRow } = await admin
+    .from('Articles')
+    .select('link, status')
+    .eq('id', id)
+    .maybeSingle()
+
   const { error } = await admin.from('Articles').delete().eq('id', id)
 
   if (error) {
@@ -44,5 +50,12 @@ export async function deleteArticle(params: { id: string | number }) {
   }
 
   revalidatePath('/admin/articles')
+  revalidatePath('/')
+  revalidatePath('/events')
+  revalidatePath('/events/archive')
+  const link = String(existingRow?.link ?? '').trim()
+  if (link) {
+    revalidatePath(`/articles/${link}`)
+  }
   return { success: true as const }
 }

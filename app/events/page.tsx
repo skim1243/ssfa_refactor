@@ -17,7 +17,7 @@ export default async function Events() {
   const supabase = await createServerClient();
   const { data: recentArticles } = await supabase
     .from('Articles')
-    .select('id, title, shortDescription, short_description, datePublished, date_published, link, titleImage, title_image')
+    .select('*')
     .eq('status', 'published')
     .not('link', 'is', null)
     .order('datePublished', { ascending: false });

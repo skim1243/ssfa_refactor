@@ -1,41 +1,62 @@
 import { NewsListItem } from '../../components/NewsListItem';
+import { createServerClient } from '@/app/utils/supabase/server';
 
-export default function EventsArchive() {
-  const placeholderImage = "/placeholder-image.svg";
+type PublicArticleRow = {
+  id: string | number;
+  title?: string | null;
+  shortDescription?: string | null;
+  short_description?: string | null;
+  datePublished?: string | null;
+  date_published?: string | null;
+  link?: string | null;
+  titleImage?: string | null;
+  title_image?: string | null;
+};
 
-  // Create more events for the archive
-  const allEvents = Array.from({ length: 25 }).map((_, index) => ({
-    title: `Event Title ${index + 1}`,
-    description: `This is a short description for event ${index + 1}. It provides a brief overview of what the event is about.`,
-    date: `December ${20 - (index % 12)}, 202${4 + Math.floor(index / 12)}`,
-    link: `/events/${index + 1}`,
-    image: placeholderImage,
-  }));
+export default async function EventsArchive() {
+  const supabase = await createServerClient();
+  const { data: archivedArticles } = await supabase
+    .from('Articles')
+    .select('id, title, shortDescription, short_description, datePublished, date_published, link, titleImage, title_image')
+    .eq('status', 'archive')
+    .not('link', 'is', null)
+    .order('datePublished', { ascending: false });
+  const articles = archivedArticles ?? [];
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 flex flex-col items-center">
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">Events Archive</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Browse our complete collection of past and upcoming events. Find information about community gatherings,
-          workshops, cultural celebrations, and more.
+          Browse archived articles and events from the Sejong Scholarship Foundation in America.
         </p>
       </div>
 
-      <div className="grid gap-4 w-full max-w-4xl mx-auto">
-        {allEvents.map((item, index) => (
-          <NewsListItem
-            key={index}
-            {...item}
-            backgroundColor={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}
-          />
-        ))}
-      </div>
-
-      <div className="text-center mt-8">
-        <p className="text-gray-600">
-          Can't find what you're looking for? <a href="/contact" className="text-blue-600 hover:underline">Contact us</a> for more information.
-        </p>
+      <div className="grid gap-4 w-full md:w-3/4">
+        {articles.length > 0 ? (
+          articles.map((article: PublicArticleRow, index: number) => (
+            <NewsListItem
+              key={String(article.id)}
+              title={String(article.title ?? 'Untitled article')}
+              description={String(article.shortDescription ?? article.short_description ?? 'Read the full article...')}
+              date={new Date(
+                String(article.datePublished ?? article.date_published ?? new Date().toISOString()),
+              ).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+              })}
+              link={`/articles/${encodeURIComponent(String(article.link ?? ''))}`}
+              image={String(article.titleImage ?? article.title_image ?? '/placeholder-image.svg')}
+              backgroundColor={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}
+            />
+          ))
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">No archived articles yet.</p>
+            <p className="text-gray-400 mt-2">Archived content will appear here.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,27 @@
 import { NewsListItem } from '../components/NewsListItem';
+import { createServerClient } from '@/app/utils/supabase/server';
 
-const PLACEHOLDER_ARTICLES: { id: string; title: string; excerpt: string; published_at: string; slug: string; featured_image: string }[] = [];
+type PublicArticleRow = {
+  id: string | number;
+  title?: string | null;
+  shortDescription?: string | null;
+  short_description?: string | null;
+  datePublished?: string | null;
+  date_published?: string | null;
+  link?: string | null;
+  titleImage?: string | null;
+  title_image?: string | null;
+};
 
 export default async function Events() {
-  const recentArticles = PLACEHOLDER_ARTICLES;
+  const supabase = await createServerClient();
+  const { data: recentArticles } = await supabase
+    .from('Articles')
+    .select('id, title, shortDescription, short_description, datePublished, date_published, link, titleImage, title_image')
+    .eq('status', 'published')
+    .not('link', 'is', null)
+    .order('datePublished', { ascending: false });
+  const articles = recentArticles ?? [];
 
   return (
     <div className="container mx-auto p-4 flex flex-col items-center">
@@ -13,19 +31,19 @@ export default async function Events() {
       </p>
 
       <div className="grid gap-4 w-full md:w-3/4">
-        {recentArticles.length > 0 ? (
-          recentArticles.map((article, index: number) => (
+        {articles.length > 0 ? (
+          articles.map((article: PublicArticleRow, index: number) => (
             <NewsListItem
-              key={article.id}
-              title={article.title}
-              description={article.excerpt || 'Read the full article...'}
-              date={new Date(article.published_at).toLocaleDateString('en-US', {
+              key={String(article.id)}
+              title={String(article.title ?? 'Untitled article')}
+              description={String(article.shortDescription ?? article.short_description ?? 'Read the full article...')}
+              date={new Date(String(article.datePublished ?? article.date_published ?? new Date().toISOString())).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric'
               })}
-              link={`/events/${article.slug}`}
-              image={article.featured_image || "/placeholder-image.svg"}
+              link={`/articles/${encodeURIComponent(String(article.link ?? ''))}`}
+              image={String(article.titleImage ?? article.title_image ?? "/placeholder-image.svg")}
               backgroundColor={index % 2 === 0 ? 'bg-white' : 'bg-gray-100'}
             />
           ))

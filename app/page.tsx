@@ -1,19 +1,28 @@
 import { Slideshow } from './components/Slideshow';
 import { NewsListItem } from '../app/components/NewsListItem';
+import { createServerClient } from '@/app/utils/supabase/server';
 
-const PLACEHOLDER_ARTICLES = [
-  {
-    id: '1',
-    title: 'Welcome to SSFA News',
-    excerpt: 'Stay updated with the latest news and announcements from the Sejong Scholarship Foundation in America.',
-    published_at: new Date().toISOString(),
-    slug: 'welcome-to-ssfa-news',
-    featured_image: '/placeholder-image.svg',
-  },
-];
+type PublicArticleRow = {
+  id: string | number;
+  title?: string | null;
+  shortDescription?: string | null;
+  short_description?: string | null;
+  datePublished?: string | null;
+  date_published?: string | null;
+  link?: string | null;
+  titleImage?: string | null;
+  title_image?: string | null;
+};
 
 export default async function Home() {
-  const recentArticles = PLACEHOLDER_ARTICLES;
+  const supabase = await createServerClient();
+  const { data: recentArticles } = await supabase
+    .from('Articles')
+    .select('id, title, shortDescription, short_description, datePublished, date_published, link, titleImage, title_image')
+    .eq('status', 'published')
+    .not('link', 'is', null)
+    .order('datePublished', { ascending: false })
+    .limit(6);
 
   return (
       <main className="flex min-h-screen flex-col items-center justify-between">
@@ -23,18 +32,18 @@ export default async function Home() {
       <div className="min-h-[700px] w-full flex flex-col items-center justify-center bg-white py-10">
         <h2 className="text-3xl font-bold mb-6 text-black">Recent News</h2>
         <div className="grid gap-4 w-full md:w-3/4">
-          {recentArticles.map((article: { id: string; title: string; excerpt: string; published_at: string; slug: string; featured_image: string }, index: number) => (
+          {(recentArticles ?? []).map((article: PublicArticleRow, index: number) => (
             <NewsListItem
-              key={article.id}
-              title={article.title}
-              description={article.excerpt || 'Read the full article...'}
-              date={new Date(article.published_at).toLocaleDateString('en-US', {
+              key={String(article.id)}
+              title={String(article.title ?? 'Untitled article')}
+              description={String(article.shortDescription ?? article.short_description ?? 'Read the full article...')}
+              date={new Date(String(article.datePublished ?? article.date_published ?? new Date().toISOString())).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric'
               })}
-              link={`/events`}
-              image={article.featured_image}
+              link={`/articles/${encodeURIComponent(String(article.link ?? ''))}`}
+              image={String(article.titleImage ?? article.title_image ?? '/placeholder-image.svg')}
               backgroundColor={index % 2 === 0 ? "bg-white" : "bg-gray-100"}
             />
           ))}

@@ -6,6 +6,7 @@ import { ApplicantPortalMenu } from '@/app/components/ApplicantPortalMenu'
 
 function completionStatusLabel(completionStatus: string | null | undefined): string {
   if (completionStatus === 'Pending') return 'incomplete'
+  if (completionStatus === 'Withdrawn') return 'Withdrawn'
   if (completionStatus == null || completionStatus === '') return 'N/A'
   return completionStatus
 }
@@ -68,7 +69,7 @@ export default async function ApplicantPortal() {
           style={{ backgroundColor: 'var(--color-blue)' }}
         >
           <div className="absolute right-4 top-4">
-            <ApplicantPortalMenu />
+            <ApplicantPortalMenu application={row} />
           </div>
           <h1 className="text-5xl font-bold md:text-6xl">
             Welcome{user.email ? `, ${user.email}` : ''}!
@@ -136,7 +137,7 @@ export default async function ApplicantPortal() {
         </section>
 
         <section>
-          {completionStatus === 'Submitted' ? (
+          {completionStatus === 'Submitted' || completionStatus === 'Withdrawn' ? (
             <div
               className="flex min-h-[320px] flex-col border-4 border-solid bg-white p-6 shadow-sm md:p-8"
               style={{ borderColor: 'var(--color-green)' }}

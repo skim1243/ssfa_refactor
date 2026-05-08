@@ -27,7 +27,7 @@ export async function saveApplicationDocumentUrl(
   // Use user_id for existence check — table may not have a column named `id`.
   const { data: existingRow, error: readError } = await supabase
     .from('Applications')
-    .select('user_id')
+    .select('user_id, completionStatus')
     .eq('user_id', user.id)
     .maybeSingle()
 
@@ -37,6 +37,11 @@ export async function saveApplicationDocumentUrl(
   }
   if (!existingRow) {
     return { error: 'No application row found for this user.' }
+  }
+
+  const st = (existingRow.completionStatus as string | undefined) ?? null
+  if (st === 'Withdrawn') {
+    return { error: 'This application was withdrawn and can no longer be edited.' }
   }
 
   const { error } = await supabase

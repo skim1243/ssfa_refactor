@@ -4,41 +4,23 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface DonationData {
-  // Personal Information - to be stored in user profile/backend
   name: string;
-  date: string; // Current date, leave blank for now
-  email: string;
-  phone: string;
-  occupation: string;
-
-  // Address Information - to be stored with user profile/backend
-  address: {
-    street: string;
-    city: string;
-    zipCode: string;
-  };
-
-  // Donation Details - to be stored in donations table/backend
+  date: string;
+  address: string;
   amount: string;
+  occupation: string;
+  phone: string;
+  email: string;
 }
 
 interface FormErrors {
-  // Personal Information errors
   name?: string;
   date?: string;
-  email?: string;
-  phone?: string;
-  occupation?: string;
-
-  // Address errors
-  address?: {
-    street?: string;
-    city?: string;
-    zipCode?: string;
-  };
-
-  // Donation Details errors
+  address?: string;
   amount?: string;
+  occupation?: string;
+  phone?: string;
+  email?: string;
 }
 
 export default function DonateForm() {
@@ -47,16 +29,12 @@ export default function DonateForm() {
   // State for form data - this would be sent to backend API endpoint
   const [formData, setFormData] = useState<DonationData>({
     name: '',
-    date: '', // Current date, leave blank for now
-    email: '',
-    phone: '',
+    date: '',
+    address: '',
+    amount: '',
     occupation: '',
-    address: {
-      street: '',
-      city: '',
-      zipCode: ''
-    },
-    amount: ''
+    phone: '',
+    email: '',
   });
 
   // State for form validation and submission
@@ -70,34 +48,18 @@ export default function DonateForm() {
     }));
   };
 
-  const handleAddressChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      address: {
-        ...prev.address,
-        [field]: value
-      }
-    }));
-  };
-
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Personal Information Validation
     if (!formData.name.trim()) newErrors.name = 'Name is required';
+    if (!formData.date.trim()) newErrors.date = 'Date is required';
+    if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.amount.trim()) newErrors.amount = 'Amount is required';
+    if (!formData.occupation.trim()) newErrors.occupation = 'Occupation is required';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
     if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Valid email is required';
     }
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
-    if (!formData.occupation.trim()) newErrors.occupation = 'Occupation is required';
-
-    // Address Validation
-    if (!formData.address.street.trim()) newErrors.address = { ...newErrors.address, street: 'Street address is required' };
-    if (!formData.address.city.trim()) newErrors.address = { ...newErrors.address, city: 'City is required' };
-    if (!formData.address.zipCode.trim()) newErrors.address = { ...newErrors.address, zipCode: 'ZIP code is required' };
-
-    // Donation Amount Validation
-    if (!formData.amount.trim()) newErrors.amount = 'Donation amount is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -139,13 +101,12 @@ export default function DonateForm() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-      <h2 className="text-3xl font-bold text-center mb-8 text-[#20194A]">Make a Donation</h2>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg border border-yellow-100">
+      <h2 className="text-3xl font-bold text-center mb-8 text-[var(--color-yellow)]">Contribute by Credit Card / PayPal</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Personal Information Section */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4 text-[#2B7FAD]">Personal Information</h3>
+        <div className="bg-yellow-50/60 p-6 rounded-lg">
+          <h3 className="text-xl font-semibold mb-4 text-[var(--color-yellow)]">Donation Information</h3>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-2">Name *</label>
@@ -153,43 +114,42 @@ export default function DonateForm() {
                 type="text"
                 value={formData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[var(--color-yellow)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-yellow)] focus:border-transparent"
                 placeholder="John Doe"
               />
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Date</label>
+              <label className="block text-sm font-medium mb-2">Date *</label>
               <input
-                type="text"
+                type="date"
                 value={formData.date}
                 onChange={(e) => handleInputChange('date', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
-                placeholder="Leave blank for current date"
+                className="w-full p-3 border-2 border-[var(--color-yellow)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-yellow)] focus:border-transparent"
               />
               {errors.date && <p className="text-red-500 text-sm mt-1">{errors.date}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Email *</label>
+              <label className="block text-sm font-medium mb-2">Address *</label>
               <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
-                placeholder="john.doe@email.com"
+                type="text"
+                value={formData.address}
+                onChange={(e) => handleInputChange('address', e.target.value)}
+                className="w-full p-3 border-2 border-[var(--color-yellow)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-yellow)] focus:border-transparent"
+                placeholder="123 Main Street, City, State ZIP"
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Phone Number *</label>
+              <label className="block text-sm font-medium mb-2">Amount *</label>
               <input
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
-                placeholder="(555) 123-4567"
+                type="text"
+                value={formData.amount}
+                onChange={(e) => handleInputChange('amount', e.target.value)}
+                className="w-full p-3 border-2 border-[var(--color-yellow)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-yellow)] focus:border-transparent"
+                placeholder="$100"
               />
-              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount}</p>}
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">Occupation *</label>
@@ -197,71 +157,36 @@ export default function DonateForm() {
                 type="text"
                 value={formData.occupation}
                 onChange={(e) => handleInputChange('occupation', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+                className="w-full p-3 border-2 border-[var(--color-yellow)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-yellow)] focus:border-transparent"
                 placeholder="Software Engineer"
               />
               {errors.occupation && <p className="text-red-500 text-sm mt-1">{errors.occupation}</p>}
             </div>
-          </div>
-        </div>
-
-        {/* Address Section */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4 text-[#2B7FAD]">Address</h3>
-          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Street *</label>
+              <label className="block text-sm font-medium mb-2">Phone *</label>
               <input
-                type="text"
-                value={formData.address.street}
-                onChange={(e) => handleAddressChange('street', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
-                placeholder="123 Main Street"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                className="w-full p-3 border-2 border-[var(--color-yellow)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-yellow)] focus:border-transparent"
+                placeholder="(555) 123-4567"
               />
-              {errors.address?.street && <p className="text-red-500 text-sm mt-1">{errors.address.street}</p>}
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">City *</label>
+              <label className="block text-sm font-medium mb-2">Email *</label>
               <input
-                type="text"
-                value={formData.address.city}
-                onChange={(e) => handleAddressChange('city', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
-                placeholder="New York"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                className="w-full p-3 border-2 border-[var(--color-yellow)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-yellow)] focus:border-transparent"
+                placeholder="john.doe@email.com"
               />
-              {errors.address?.city && <p className="text-red-500 text-sm mt-1">{errors.address.city}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">ZIP Code *</label>
-              <input
-                type="text"
-                value={formData.address.zipCode}
-                onChange={(e) => handleAddressChange('zipCode', e.target.value)}
-                className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
-                placeholder="10001"
-              />
-              {errors.address?.zipCode && <p className="text-red-500 text-sm mt-1">{errors.address.zipCode}</p>}
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
           </div>
         </div>
 
-        {/* Donation Amount Section */}
-        <div className="bg-gray-50 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4 text-[#2B7FAD]">Donation Amount</h3>
-          <div>
-            <label className="block text-sm font-medium mb-2">Amount *</label>
-            <input
-              type="text"
-              value={formData.amount}
-              onChange={(e) => handleInputChange('amount', e.target.value)}
-              className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
-              placeholder="Enter donation amount"
-            />
-            {errors.amount && <p className="text-red-500 text-sm mt-1">{errors.amount}</p>}
-          </div>
-        </div>
-
-        {/* Submit Button */}
         <div className="text-center">
           <button
             type="submit"
@@ -269,7 +194,7 @@ export default function DonateForm() {
             className={`px-8 py-4 text-white font-semibold rounded-lg transition-colors ${
               isSubmitting
                 ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[#2B7FAD] hover:bg-[#256a92]'
+                : 'bg-[var(--color-yellow)] hover:bg-amber-500'
             }`}
           >
             {isSubmitting ? 'Processing...' : 'Donate'}

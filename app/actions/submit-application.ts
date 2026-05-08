@@ -47,6 +47,10 @@ export async function submitApplication() {
 
   const currentStatus = (current?.completionStatus as string | undefined) ?? null
 
+  if (currentStatus === 'Withdrawn') {
+    return { error: 'This application was withdrawn and can no longer be submitted or edited.' }
+  }
+
   if (currentStatus === 'Submitted') {
     return { success: true as const, alreadySubmitted: true as const }
   }

@@ -113,7 +113,7 @@ export default function ContactForm() {
               type="text"
               value={formData.firstName}
               onChange={(e) => handleInputChange('firstName', e.target.value)}
-              className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+              className="w-full p-3 border-2 border-[var(--color-green)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-green)] focus:border-transparent"
               placeholder="John"
             />
             {errors.firstName && <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>}
@@ -124,7 +124,7 @@ export default function ContactForm() {
               type="text"
               value={formData.lastName}
               onChange={(e) => handleInputChange('lastName', e.target.value)}
-              className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+              className="w-full p-3 border-2 border-[var(--color-green)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-green)] focus:border-transparent"
               placeholder="Doe"
             />
             {errors.lastName && <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>}
@@ -137,7 +137,7 @@ export default function ContactForm() {
             type="email"
             value={formData.email}
             onChange={(e) => handleInputChange('email', e.target.value)}
-            className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+            className="w-full p-3 border-2 border-[var(--color-green)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-green)] focus:border-transparent"
             placeholder="john.doe@email.com"
           />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
@@ -148,7 +148,7 @@ export default function ContactForm() {
           <textarea
             value={formData.message}
             onChange={(e) => handleInputChange('message', e.target.value)}
-            className="w-full p-3 border-2 border-[#2B7FAD] text-[#2B7FAD] rounded-md focus:ring-2 focus:ring-[#2B7FAD] focus:border-transparent"
+            className="w-full p-3 border-2 border-[var(--color-green)] text-gray-800 rounded-md focus:ring-2 focus:ring-[var(--color-green)] focus:border-transparent"
             rows={6}
             placeholder="Please enter your message here..."
           />
@@ -164,7 +164,7 @@ export default function ContactForm() {
           className={`px-8 py-4 text-white font-semibold rounded-lg transition-colors ${
             isSubmitting
               ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-[#2B7FAD] hover:bg-[#256a92]'
+              : 'bg-[var(--color-green)] hover:bg-green-700'
           }`}
         >
           {isSubmitting ? 'Sending...' : 'Send Message'}

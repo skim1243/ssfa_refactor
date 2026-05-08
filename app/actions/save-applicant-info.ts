@@ -33,6 +33,21 @@ export async function saveApplicantInfo(formData: FormData) {
     return { success: true as const, skipped: true as const }
   }
 
+  const { data: statusRow, error: statusErr } = await supabase
+    .from('Applications')
+    .select('completionStatus')
+    .eq('user_id', user.id)
+    .maybeSingle()
+
+  if (statusErr) {
+    console.error('SAVE APPLICANT INFO STATUS:', statusErr)
+    return { error: statusErr.message }
+  }
+  const st = (statusRow?.completionStatus as string | undefined) ?? null
+  if (st === 'Withdrawn') {
+    return { error: 'This application was withdrawn and can no longer be edited.' }
+  }
+
   const { error } = await supabase
     .from('Applications')
     .update(patch)

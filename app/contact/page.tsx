@@ -2,14 +2,14 @@ import ContactForm from '../components/ContactForm';
 
 export default function Contact() {
   return (
-    <main className="min-h-screen bg-gray-50 py-12">
+    <main className="min-h-screen bg-gradient-to-b from-green-50 to-white py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-center text-[#20194A] mb-12">Contact Us</h1>
+        <h1 className="text-4xl font-bold text-center text-[var(--color-green)] mb-12">Contact Us</h1>
 
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
           {/* How to Find Us Section */}
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold mb-6 text-[#2B7FAD]">How to Find Us</h2>
+          <div className="bg-white p-8 rounded-lg shadow-lg border border-green-100">
+            <h2 className="text-2xl font-semibold mb-6 text-[var(--color-green)]">How to Find Us</h2>
 
             <div className="space-y-6">
               <div>
@@ -38,8 +38,8 @@ export default function Contact() {
           </div>
 
           {/* Contact Form Section */}
-          <div className="bg-white p-8 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold mb-6 text-[#2B7FAD]">Get in Touch</h2>
+          <div className="bg-white p-8 rounded-lg shadow-lg border border-green-100">
+            <h2 className="text-2xl font-semibold mb-6 text-[var(--color-green)]">Get in Touch</h2>
             <ContactForm />
           </div>
         </div>

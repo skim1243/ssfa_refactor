@@ -1,15 +1,8 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { APPLICANT_DOCUMENT_BUCKETS } from '@/app/constants/applicant-document-buckets'
 import { createServerClient } from '@/app/utils/supabase/server'
-
-const APPLICANT_DOCUMENT_BUCKETS = [
-  'miscellaneous_evidence_file',
-  'self_introduction_video',
-  'income_tax_papers',
-  'transcripts',
-  'enrollment_documents',
-] as const
 
 export async function registerApplicant(
   _prev: unknown,

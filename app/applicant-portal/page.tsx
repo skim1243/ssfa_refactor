@@ -60,6 +60,14 @@ export default async function ApplicantPortal() {
     (row?.submissionDate as string | undefined) ??
     (row?.submission_date as string | undefined) ??
     null
+  const applicationCycle =
+    (row?.applicationCycle as string | undefined) ??
+    (row?.application_cycle as string | undefined) ??
+    null
+  const applicationCycleDisplay =
+    applicationCycle != null && applicationCycle.trim() !== ''
+      ? applicationCycle.trim()
+      : 'N/A'
 
   return (
     <main className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -89,6 +97,12 @@ export default async function ApplicantPortal() {
                     Applicant Email:
                   </span>
                   <span>{applicantEmail}</span>
+                </p>
+                <p>
+                  <span className="inline-block min-w-[14rem] text-black">
+                    Application cycle:
+                  </span>
+                  <span>{applicationCycleDisplay}</span>
                 </p>
                 <p>
                   <span className="inline-block min-w-[14rem] text-black">

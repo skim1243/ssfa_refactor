@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/app/utils/supabase/client'
@@ -77,7 +78,14 @@ export function ApplicantPortalMenu({ application }: Props) {
           </span>
         </summary>
 
-        <div className="absolute right-0 z-20 mt-2 min-w-[10rem] rounded-md border border-gray-200 bg-white p-1 shadow-lg">
+        <div className="absolute right-0 z-20 mt-2 min-w-[10rem] divide-y divide-gray-100 rounded-md border border-gray-200 bg-white p-1 shadow-lg">
+          <Link
+            href="/applicant-archive"
+            onClick={closeDetailsMenu}
+            className="block w-full rounded px-3 py-2 text-left text-sm text-gray-900 hover:bg-gray-50"
+          >
+            Application archive
+          </Link>
           {canWithdraw && (
             <button
               type="button"
@@ -94,7 +102,7 @@ export function ApplicantPortalMenu({ application }: Props) {
             onClick={() => {
               void handleLogout()
             }}
-            className={`block w-full rounded px-3 py-2 text-left text-sm text-red-700 hover:bg-red-50${canWithdraw ? ' border-t border-gray-100' : ''}`}
+            className="block w-full rounded px-3 py-2 text-left text-sm text-red-700 hover:bg-red-50"
           >
             Logout
           </button>
@@ -122,8 +130,8 @@ export function ApplicantPortalMenu({ application }: Props) {
               <p className="mt-1 text-sm text-gray-600">
                 Below is a read-only copy of your application as it stands now. Withdrawing will
                 delete your uploaded documents from storage, clear your answers, and set your
-                completion status to Withdrawn. After that, your application cannot be edited
-                again from this portal.
+                completion status to Withdrawn. After that, your application cannot be edited again
+                from this portal.
               </p>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">

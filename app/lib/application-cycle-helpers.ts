@@ -44,6 +44,17 @@ export function rowCycleTimeBounds(row: ApplicationCycleRow): { startMs: number;
   return { startMs, endMs }
 }
 
+/**
+ * Natural key for linking `Applications.applicationCycle` to a row in `applicationCycle`.
+ * The DB table has no `id` column — use a non-empty, trimmed **name** (keep cycle names unique).
+ */
+export function applicationCycleKeyFromRow(row: ApplicationCycleRow): string | null {
+  const n = pickCycleField(row, 'name', 'name')
+  if (n == null || n === '') return null
+  const s = String(n).trim()
+  return s.length > 0 ? s : null
+}
+
 /** First cycle whose window contains `now` (start <= now < end), by earliest start. */
 export function findCurrentRunningCycle(rows: ApplicationCycleRow[], nowMs: number): ApplicationCycleRow | null {
   const withBounds = rows
@@ -58,14 +69,22 @@ export function findCurrentRunningCycle(rows: ApplicationCycleRow[], nowMs: numb
   return withBounds[0]?.row ?? null
 }
 
+export type SyncApplicationCycleStatusesResult = {
+  /** Non-empty when at least one cycle transitioned into `active` (values are cycle names; only `.length` is used downstream). */
+  activatedCycleIds: string[]
+}
+
 /**
  * Updates each row's `status` from start/end times vs current time.
  * Call from server contexts (admin page, applicant portal, etc.) so cycles flip inactive → active → past without a cron.
  */
-export async function syncApplicationCycleStatuses<T extends SupabaseClient>(supabase: T): Promise<void> {
+export async function syncApplicationCycleStatuses<T extends SupabaseClient>(
+  supabase: T,
+): Promise<SyncApplicationCycleStatusesResult> {
+  const activatedCycleIds: string[] = []
   const nowMs = Date.now()
   const { data: rows, error } = await supabase.from('applicationCycle').select('*')
-  if (error || !rows?.length) return
+  if (error || !rows?.length) return { activatedCycleIds }
 
   for (const row of rows as ApplicationCycleRow[]) {
     const bounds = rowCycleTimeBounds(row)
@@ -75,16 +94,28 @@ export async function syncApplicationCycleStatuses<T extends SupabaseClient>(sup
     const current = normalizeDbStatus(pickCycleField(row, 'status', 'status'))
     if (current === desired) continue
 
-    const id = pickCycleField(row, 'id', 'id')
-    if (id == null || id === '') continue
+    const nameVal = pickCycleField(row, 'name', 'name')
+    const startVal = pickCycleField(row, 'startTime', 'start_time')
+    const endVal = pickCycleField(row, 'endTime', 'end_time')
+    if (nameVal == null || String(nameVal).trim() === '') continue
+    if (startVal == null || endVal == null) continue
+
+    if (desired === 'active' && current !== 'active') {
+      const key = applicationCycleKeyFromRow(row)
+      if (key) activatedCycleIds.push(key)
+    }
 
     const { error: updateError } = await supabase
       .from('applicationCycle')
       .update({ status: desired })
-      .eq('id', id)
+      .eq('name', String(nameVal).trim())
+      .eq('startTime', startVal)
+      .eq('endTime', endVal)
 
     if (updateError) {
       console.error('syncApplicationCycleStatuses:', updateError)
     }
   }
+
+  return { activatedCycleIds }
 }

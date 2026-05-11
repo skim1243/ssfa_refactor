@@ -1,55 +1,11 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { APPLICANT_DOCUMENT_BUCKETS } from '@/app/constants/applicant-document-buckets'
+import { removeApplicationDocumentsFromStorage } from '@/app/lib/application-document-storage'
+import { resolvePortalApplicationRowForApplicant } from '@/app/lib/applicant-portal-lifecycle'
 import { createServerClient } from '@/app/utils/supabase/server'
-import type { ApplicationDocumentColumn } from '@/app/actions/save-application-document-url'
 
-const DOCUMENT_COLUMNS: ApplicationDocumentColumn[] = [
-  'enrollmentDoc',
-  'officialTranscript',
-  'incomeTax',
-  'introVideo',
-  'evidenceFile',
-]
-
-const ALLOWED_BUCKETS = new Set<string>([...APPLICANT_DOCUMENT_BUCKETS])
-
-const SNAKE_MAP: Record<ApplicationDocumentColumn, string> = {
-  enrollmentDoc: 'enrollment_doc',
-  officialTranscript: 'official_transcript',
-  incomeTax: 'income_tax',
-  introVideo: 'intro_video',
-  evidenceFile: 'evidence_file',
-}
-
-function readDocUrl(row: Record<string, unknown>, col: ApplicationDocumentColumn): string | null {
-  const v = row[col] ?? row[SNAKE_MAP[col]]
-  if (v == null || v === '') return null
-  const s = String(v).trim()
-  return s.length > 0 ? s : null
-}
-
-/** Parses a Supabase public object URL into bucket + storage path. */
-function parseSupabasePublicStorageUrl(url: string): { bucket: string; path: string } | null {
-  const trimmed = url.split('?')[0]?.trim() ?? ''
-  const marker = '/storage/v1/object/public/'
-  const idx = trimmed.indexOf(marker)
-  if (idx === -1) return null
-  const after = trimmed.slice(idx + marker.length)
-  const slash = after.indexOf('/')
-  if (slash === -1) return null
-  const bucket = after.slice(0, slash)
-  const encodedPath = after.slice(slash + 1)
-  if (!bucket || !encodedPath) return null
-  const path = encodedPath
-    .split('/')
-    .map((segment) => decodeURIComponent(segment))
-    .join('/')
-  return { bucket, path }
-}
-
-export async function withdrawApplication() {
+export async function withdrawApplication(applicationId?: string | null) {
   const supabase = await createServerClient()
   const {
     data: { user },
@@ -60,24 +16,28 @@ export async function withdrawApplication() {
   const { data: roleRow } = await supabase
     .from('user_roles')
     .select('role')
-    .eq('"user"', user.id)
+    .eq('user', user.id)
     .maybeSingle()
 
   if (roleRow?.role !== 'applicant') return { error: 'Not allowed.' as const }
 
-  const { data: app, error: readError } = await supabase
-    .from('Applications')
-    .select('*')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const explicitId = String(applicationId ?? '').trim() || null
 
-  if (readError) {
-    console.error('WITHDRAW READ:', readError)
-    return { error: readError.message }
+  const portalRow = await resolvePortalApplicationRowForApplicant(
+    supabase,
+    user.id,
+    user.email?.trim() ?? '',
+    explicitId,
+  )
+
+  if (!portalRow) return { error: 'No application found.' as const }
+
+  const row = portalRow as Record<string, unknown>
+  const rowId = row.id
+  if (rowId == null || rowId === '') {
+    return { error: 'No application found.' as const }
   }
-  if (!app) return { error: 'No application found.' as const }
 
-  const row = app as Record<string, unknown>
   const status =
     (row.completionStatus as string | undefined) ??
     (row.completion_status as string | undefined) ??
@@ -86,32 +46,11 @@ export async function withdrawApplication() {
   if (status === 'Withdrawn') {
     return { error: 'This application has already been withdrawn.' as const }
   }
-
-  const userPrefix = `users/${user.id}/`
-
-  for (const col of DOCUMENT_COLUMNS) {
-    const url = readDocUrl(row, col)
-    if (!url) continue
-
-    const parsed = parseSupabasePublicStorageUrl(url)
-    if (!parsed) {
-      console.warn('WITHDRAW: could not parse storage URL', col, url)
-      continue
-    }
-    if (!ALLOWED_BUCKETS.has(parsed.bucket)) {
-      console.warn('WITHDRAW: unexpected bucket', parsed.bucket)
-      continue
-    }
-    if (!parsed.path.startsWith(userPrefix)) {
-      console.warn('WITHDRAW: path not in user folder', parsed.path)
-      continue
-    }
-
-    const { error: removeErr } = await supabase.storage.from(parsed.bucket).remove([parsed.path])
-    if (removeErr) {
-      console.error('WITHDRAW REMOVE:', col, removeErr)
-    }
+  if (status === 'Overdue') {
+    return { error: 'This application is overdue and can no longer be withdrawn.' as const }
   }
+
+  await removeApplicationDocumentsFromStorage(supabase, user.id, row)
 
   const email = user.email?.trim() ?? null
 
@@ -135,7 +74,7 @@ export async function withdrawApplication() {
       acceptenceStatus: 'Pending',
       submissionDate: null,
     })
-    .eq('user_id', user.id)
+    .eq('id', rowId)
 
   if (updateError) {
     console.error('WITHDRAW UPDATE:', updateError)
@@ -143,5 +82,6 @@ export async function withdrawApplication() {
   }
 
   revalidatePath('/applicant-portal')
+  revalidatePath('/applicant-archive')
   return { success: true as const }
 }

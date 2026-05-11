@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { resolvePortalApplicationRowForApplicant } from '@/app/lib/applicant-portal-lifecycle'
 import { createServerClient } from '@/app/utils/supabase/server'
 
 export type ApplicationDocumentColumn =
@@ -13,7 +14,8 @@ export type ApplicationDocumentColumn =
 /** Persists the public URL (or storage path) for a document field on the user’s Applications row. */
 export async function saveApplicationDocumentUrl(
   column: ApplicationDocumentColumn,
-  url: string
+  url: string,
+  applicationId?: string | null,
 ) {
   const supabase = await createServerClient()
   const {
@@ -24,30 +26,34 @@ export async function saveApplicationDocumentUrl(
   const trimmed = url.trim()
   if (!trimmed) return { error: 'No file URL to save.' }
 
-  // Use user_id for existence check — table may not have a column named `id`.
-  const { data: existingRow, error: readError } = await supabase
-    .from('Applications')
-    .select('user_id, completionStatus')
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const explicitId = String(applicationId ?? '').trim() || null
 
-  if (readError) {
-    console.error('SAVE DOCUMENT URL READ:', readError)
-    return { error: readError.message }
-  }
-  if (!existingRow) {
+  const portalRow = await resolvePortalApplicationRowForApplicant(
+    supabase,
+    user.id,
+    user.email?.trim() ?? '',
+    explicitId,
+  )
+  const rowId = portalRow?.id
+  if (portalRow == null || rowId == null || rowId === '') {
     return { error: 'No application row found for this user.' }
   }
 
-  const st = (existingRow.completionStatus as string | undefined) ?? null
+  const st =
+    (portalRow.completionStatus as string | undefined) ??
+    (portalRow.completion_status as string | undefined) ??
+    null
   if (st === 'Withdrawn') {
     return { error: 'This application was withdrawn and can no longer be edited.' }
+  }
+  if (st === 'Overdue') {
+    return { error: 'This application is overdue and can no longer be edited.' }
   }
 
   const { error } = await supabase
     .from('Applications')
     .update({ [column]: trimmed })
-    .eq('user_id', user.id)
+    .eq('id', rowId)
 
   if (error) {
     console.error('SAVE DOCUMENT URL:', error)
@@ -57,7 +63,7 @@ export async function saveApplicationDocumentUrl(
   const { data: verifyRow, error: verifyError } = await supabase
     .from('Applications')
     .select(column)
-    .eq('user_id', user.id)
+    .eq('id', rowId)
     .maybeSingle()
 
   if (verifyError) {
@@ -72,5 +78,6 @@ export async function saveApplicationDocumentUrl(
   }
 
   revalidatePath('/applicant-portal')
+  revalidatePath('/applicant-archive')
   return { success: true as const }
 }

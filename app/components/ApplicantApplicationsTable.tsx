@@ -69,7 +69,7 @@ export function ApplicantApplicationsTable({ applications, selectedApplicationId
               Grade
             </th>
             <th scope="col" className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-700">
-              Applicant portal
+              Portal
             </th>
             <th scope="col" className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-700">
               Application cycle
@@ -100,7 +100,7 @@ export function ApplicantApplicationsTable({ applications, selectedApplicationId
                     href={href}
                     className="font-semibold text-[var(--color-blue)] underline decoration-2 underline-offset-2 hover:opacity-90"
                   >
-                    Open application
+                    Open in portal
                   </Link>
                 </td>
                 <td className="max-w-md break-words px-4 py-3 text-gray-700">{formatApplicationCycle(row)}</td>

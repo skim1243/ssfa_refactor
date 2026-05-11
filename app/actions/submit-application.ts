@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { resolvePortalApplicationRowForApplicant } from '@/app/lib/applicant-portal-lifecycle'
 import { createServerClient } from '@/app/utils/supabase/server'
 
 const REQUIRED_FIELDS = [
@@ -24,7 +25,7 @@ function hasValue(value: unknown): boolean {
   return true
 }
 
-export async function submitApplication() {
+export async function submitApplication(applicationId?: string | null) {
   const supabase = await createServerClient()
   const {
     data: { user },
@@ -32,26 +33,34 @@ export async function submitApplication() {
 
   if (!user) return { error: 'You must be signed in.' }
 
-  const { data: current, error: readError } = await supabase
-    .from('Applications')
-    .select(
-      'completionStatus, firstName, lastName, phoneNumber, email, school, grade, major, enrollmentDoc, officialTranscript, incomeTax, introVideo, evidenceFile'
-    )
-    .eq('user_id', user.id)
-    .maybeSingle()
+  const explicitId = String(applicationId ?? '').trim() || null
 
-  if (readError) {
-    console.error('SUBMIT APPLICATION READ:', readError)
-    return { error: readError.message }
+  const portalRow = await resolvePortalApplicationRowForApplicant(
+    supabase,
+    user.id,
+    user.email?.trim() ?? '',
+    explicitId,
+  )
+  const rowId = portalRow?.id
+  if (rowId == null || rowId === '') {
+    return { error: 'No application found for the current cycle.' }
   }
 
-  const currentStatus = (current?.completionStatus as string | undefined) ?? null
+  const current = portalRow as Record<string, unknown>
+
+  const currentStatus = (current.completionStatus as string | undefined) ?? null
 
   if (currentStatus === 'Submitted') {
     return { success: true as const, alreadySubmitted: true as const }
   }
+  if (currentStatus === 'Overdue') {
+    return { error: 'This application is overdue and can no longer be submitted.' }
+  }
+  if (currentStatus === 'Withdrawn') {
+    return { error: 'This application was withdrawn and can no longer be submitted.' }
+  }
 
-  const missing = REQUIRED_FIELDS.filter((field) => !hasValue(current?.[field.column])).map(
+  const missing = REQUIRED_FIELDS.filter((field) => !hasValue(current[field.column])).map(
     (field) => field.label
   )
   if (missing.length > 0) {
@@ -66,7 +75,7 @@ export async function submitApplication() {
       completionStatus: 'Submitted',
       submissionDate: new Date().toISOString(),
     })
-    .eq('user_id', user.id)
+    .eq('id', rowId)
 
   if (error) {
     console.error('SUBMIT APPLICATION UPDATE:', error)
@@ -74,5 +83,6 @@ export async function submitApplication() {
   }
 
   revalidatePath('/applicant-portal')
+  revalidatePath('/applicant-archive')
   return { success: true as const }
 }

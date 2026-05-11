@@ -32,9 +32,11 @@ function pickString(
 type Props = {
   /** Row from `Applications` for this user, or null if missing */
   initialApplication: Record<string, unknown> | null
+  /** Row primary key so saves target this application when deep-linked on the portal. */
+  applicationId?: string
 }
 
-export function ApplicantInformationForm({ initialApplication }: Props) {
+export function ApplicantInformationForm({ initialApplication, applicationId }: Props) {
   const router = useRouter()
   const [pending, startTransition] = useTransition()
   // Keep each input controlled so edits are always reflected in React state.
@@ -85,11 +87,18 @@ export function ApplicantInformationForm({ initialApplication }: Props) {
     })
   }
 
+  const hiddenApplicationId =
+    applicationId?.trim() ||
+    (initialApplication?.id != null && initialApplication.id !== ''
+      ? String(initialApplication.id)
+      : '')
+
   return (
     <form
       onSubmit={handleSubmit}
       className="mr-auto flex w-full max-w-xl flex-col gap-4 text-green-950"
     >
+      {hiddenApplicationId ? <input type="hidden" name="applicationId" value={hiddenApplicationId} /> : null}
       <div className="grid gap-1">
         <label htmlFor="firstName" className="text-sm font-medium text-green-900">
           First name

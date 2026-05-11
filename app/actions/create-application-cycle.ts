@@ -1,13 +1,20 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { createServerClient } from '@/app/utils/supabase/server'
+import {
+  emptyApplicationInsertPayload,
+  upsertEmptyApplicationForCycle,
+} from '@/app/lib/applicant-application-payload'
 import {
   applicationCycleIntervalsOverlap,
+  applicationCycleKeyFromRow,
   parseCycleTimeMs,
+  pickCycleField,
   rowCycleTimeBounds,
   type ApplicationCycleRow,
 } from '@/app/lib/application-cycle-helpers'
+import { createServerClient } from '@/app/utils/supabase/server'
+import { createServiceRoleSupabaseClient } from '@/app/utils/supabase/service-role'
 
 export type CreateApplicationCycleState = { error: string } | { success: true } | null
 
@@ -68,6 +75,10 @@ export async function createApplicationCycle(
     if (applicationCycleIntervalsOverlap(startMs, endMs, b.startMs, b.endMs)) {
       return { error: 'This time range overlaps an existing application cycle.' }
     }
+    const existingName = String(pickCycleField(row, 'name', 'name') ?? '').trim().toLowerCase()
+    if (existingName && existingName === name.toLowerCase()) {
+      return { error: 'An application cycle with this name already exists. Use a different name.' }
+    }
   }
 
   const { error: insertError } = await supabase.from('applicationCycle').insert({
@@ -82,7 +93,53 @@ export async function createApplicationCycle(
     return { error: insertError.message }
   }
 
+  const newCycleKey = name
+  if (newCycleKey) {
+    const service = createServiceRoleSupabaseClient()
+    const { data: applicantRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('user')
+      .eq('role', 'applicant')
+
+    if (rolesError) {
+      console.error('CREATE APPLICATION CYCLE (applicant roles):', rolesError)
+    } else {
+      for (const roleRow of (applicantRoles ?? []) as { user: string }[]) {
+        const applicantId = roleRow.user
+        if (!applicantId) continue
+
+        let email = ''
+        const { data: anyApp } = await supabase
+          .from('Applications')
+          .select('email')
+          .eq('user_id', applicantId)
+          .limit(1)
+          .maybeSingle()
+        if (anyApp?.email && String(anyApp.email).trim()) {
+          email = String(anyApp.email).trim()
+        } else if (service) {
+          const { data: authData, error: authErr } = await service.auth.admin.getUserById(applicantId)
+          if (!authErr && authData.user?.email?.trim()) {
+            email = authData.user.email.trim()
+          }
+        }
+        if (!email) {
+          email = `applicant-${applicantId}@pending.invalid`
+        }
+
+        const { error: appInsErr } = await upsertEmptyApplicationForCycle(
+          supabase,
+          emptyApplicationInsertPayload(applicantId, email, newCycleKey),
+        )
+        if (appInsErr) {
+          console.error('CREATE APPLICATION CYCLE (provision app):', applicantId, appInsErr)
+        }
+      }
+    }
+  }
+
   revalidatePath('/admin/application-cycles')
   revalidatePath('/applicant-portal')
+  revalidatePath('/applicant-archive')
   return { success: true }
 }

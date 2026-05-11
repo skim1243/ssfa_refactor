@@ -1,8 +1,10 @@
 import { redirect } from 'next/navigation'
-import { createServerClient } from '@/app/utils/supabase/server'
+import { ApplicantNoCurrentCycleNotice } from '@/app/components/ApplicantNoCurrentCycleNotice'
 import { ApplicantApplicationsTable } from '@/app/components/ApplicantApplicationsTable'
-import { ApplicantArchiveMenu } from '@/app/components/ApplicantArchiveMenu'
-import { syncApplicationCycleStatuses } from '@/app/lib/application-cycle-helpers'
+import { ApplicantPortalDirectoryMenu } from '@/app/components/ApplicantPortalDirectoryMenu'
+import { findCurrentRunningCycle, type ApplicationCycleRow } from '@/app/lib/application-cycle-helpers'
+import { runApplicantPortalLifecycle } from '@/app/lib/applicant-portal-lifecycle'
+import { createServerClient } from '@/app/utils/supabase/server'
 
 export default async function ApplicantArchivePage() {
   const supabase = await createServerClient()
@@ -15,14 +17,18 @@ export default async function ApplicantArchivePage() {
   const { data: roleRow } = await supabase
     .from('user_roles')
     .select('role')
-    .eq('"user"', user.id)
+    .eq('user', user.id)
     .maybeSingle()
 
   if (!roleRow?.role || roleRow.role !== 'applicant') {
     redirect('/auth-error')
   }
 
-  await syncApplicationCycleStatuses(supabase)
+  await runApplicantPortalLifecycle(supabase, user.id, user.email?.trim() ?? '')
+
+  const { data: cyclesRaw } = await supabase.from('applicationCycle').select('*')
+  const cycles = (cyclesRaw ?? []) as ApplicationCycleRow[]
+  const hasActiveCycle = findCurrentRunningCycle(cycles, Date.now()) != null
 
   const { data: applicationsRaw, error: applicationsError } = await supabase
     .from('Applications')
@@ -39,12 +45,22 @@ export default async function ApplicantArchivePage() {
           style={{ backgroundColor: 'var(--color-blue)' }}
         >
           <div className="absolute right-4 top-4">
-            <ApplicantArchiveMenu />
+            <ApplicantPortalDirectoryMenu />
           </div>
-          <h1 className="text-4xl font-bold md:text-5xl">Application archive</h1>
+          <h1 className="text-4xl font-bold md:text-5xl">Application portal directory</h1>
+          <p className="mt-3 max-w-2xl text-base text-white/90 md:text-lg">
+            This is your home as an applicant. Every application record is listed below. Open one to
+            load that entry in the application workspace. When a cycle is open, use Application
+            workspace in the menu for the default current application.
+          </p>
         </section>
 
+        {!hasActiveCycle ? (
+          <ApplicantNoCurrentCycleNotice embedded showApplicantLoginLink={false} />
+        ) : null}
+
         <section className="flex flex-col gap-3">
+          <h2 className="text-lg font-semibold text-gray-900">All application records</h2>
           {applicationsError ? (
             <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
               Failed to load applications: {applicationsError.message}

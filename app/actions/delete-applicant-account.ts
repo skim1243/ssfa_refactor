@@ -102,7 +102,7 @@ export async function deleteApplicantAccountAndApplication(params: { targetUserI
 
   const [{ data: targetRole }, { data: applicationRow }] = await Promise.all([
     admin.from('user_roles').select('role').eq('user', targetUserId).maybeSingle(),
-    admin.from('Applications').select('user_id').eq('user_id', targetUserId).maybeSingle(),
+    admin.from('Applications').select('user_id').eq('user_id', targetUserId).limit(1).maybeSingle(),
   ])
 
   const shouldPurgeApplicantBuckets =
@@ -113,6 +113,7 @@ export async function deleteApplicantAccountAndApplication(params: { targetUserI
     if ('error' in purge) return purge
   }
 
+  // Remove every application row for this account (all cycles / multiple rows per user_id).
   const { error: appErr } = await admin.from('Applications').delete().eq('user_id', targetUserId)
   if (appErr) {
     console.error('DELETE APPLICATIONS:', appErr)

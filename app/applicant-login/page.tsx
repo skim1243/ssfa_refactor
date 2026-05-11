@@ -29,7 +29,7 @@ export default function ApplicantLogin() {
       }
 
       if (data.user) {
-        router.push('/applicant-portal');
+        router.push('/applicant-archive');
         router.refresh();
       }
     } catch {

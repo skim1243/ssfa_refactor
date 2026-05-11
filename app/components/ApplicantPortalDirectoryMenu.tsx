@@ -1,10 +1,11 @@
 'use client'
 
+import Link from 'next/link'
 import { useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/app/utils/supabase/client'
 
-export function ApplicantArchiveMenu() {
+export function ApplicantPortalDirectoryMenu() {
   const router = useRouter()
   const detailsRef = useRef<HTMLDetailsElement>(null)
 
@@ -33,6 +34,13 @@ export function ApplicantArchiveMenu() {
       </summary>
 
       <div className="absolute right-0 z-20 mt-2 min-w-[10rem] rounded-md border border-gray-200 bg-white p-1 shadow-lg">
+        <Link
+          href="/applicant-portal"
+          onClick={closeDetailsMenu}
+          className="block w-full rounded px-3 py-2 text-left text-sm text-gray-900 hover:bg-gray-50"
+        >
+          Application workspace
+        </Link>
         <button
           type="button"
           onClick={() => {

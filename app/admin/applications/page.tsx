@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
-import { createServerClient } from '@/app/utils/supabase/server'
 import { AdminApplicationsTable } from '@/app/components/AdminApplicationsTable'
+import { runGlobalApplicationCycleSync } from '@/app/lib/applicant-portal-lifecycle'
+import { createServerClient } from '@/app/utils/supabase/server'
 
 // Loads all applications for admins and renders the management table view.
 export default async function AdminApplicationsPage() {
@@ -21,13 +22,18 @@ export default async function AdminApplicationsPage() {
     redirect('/auth-error')
   }
 
+  await runGlobalApplicationCycleSync(supabase)
+
   const { data: applications, error } = await supabase.from('Applications').select('*')
 
   return (
     <div className="space-y-4">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Applications</h1>
-        <p className="text-sm text-gray-600">Manage all submitted application rows.</p>
+        <p className="text-sm text-gray-600">
+          Filter and review application rows. Row actions delete <strong>that application only</strong> (by id); the
+          applicant account stays. To remove an Auth user and all their applications, use the Users admin page.
+        </p>
       </div>
 
       {error ? (

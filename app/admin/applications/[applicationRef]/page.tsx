@@ -27,21 +27,33 @@ export default async function AdminApplicationDetailPage({ params }: PageProps) 
     redirect('/auth-error')
   }
 
-  const byUser = await supabase
-    .from('Applications')
-    .select('*')
-    .eq('user_id', applicationRef)
-    .maybeSingle()
+  const byId = await supabase.from('Applications').select('*').eq('id', applicationRef).maybeSingle()
 
-  if (byUser.error) {
+  if (byId.error) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-        Failed to load application: {byUser.error.message}
+        Failed to load application: {byId.error.message}
       </div>
     )
   }
 
-  const row = byUser.data
+  let row = byId.data
+  if (!row) {
+    const byUser = await supabase
+      .from('Applications')
+      .select('*')
+      .eq('user_id', applicationRef)
+      .limit(1)
+      .maybeSingle()
+    if (byUser.error) {
+      return (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          Failed to load application: {byUser.error.message}
+        </div>
+      )
+    }
+    row = byUser.data
+  }
 
   if (!row) notFound()
 

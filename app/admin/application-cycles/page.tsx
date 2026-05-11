@@ -3,10 +3,8 @@ import { createServerClient } from '@/app/utils/supabase/server'
 import { AdminApplicationCyclesTable } from '@/app/components/AdminApplicationCyclesTable'
 import { AdminCreateApplicationCycleForm } from '@/app/components/AdminCreateApplicationCycleForm'
 import { CurrentApplicationCycleBanner } from '@/app/components/CurrentApplicationCycleBanner'
-import {
-  findCurrentRunningCycle,
-  syncApplicationCycleStatuses,
-} from '@/app/lib/application-cycle-helpers'
+import { findCurrentRunningCycle } from '@/app/lib/application-cycle-helpers'
+import { runGlobalApplicationCycleSync } from '@/app/lib/applicant-portal-lifecycle'
 
 export default async function AdminApplicationCyclesPage() {
   const supabase = await createServerClient()
@@ -26,7 +24,7 @@ export default async function AdminApplicationCyclesPage() {
     redirect('/auth-error')
   }
 
-  await syncApplicationCycleStatuses(supabase)
+  await runGlobalApplicationCycleSync(supabase)
 
   const { data: cycles, error } = await supabase.from('applicationCycle').select('*')
   const cycleRows = (cycles ?? []) as Record<string, unknown>[]

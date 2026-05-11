@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { deleteApplicantAccountAndApplication } from '@/app/actions/delete-applicant-account'
+import { deleteApplicationRow } from '@/app/actions/delete-application-row'
 import { updateApplicationAcceptanceStatus } from '@/app/actions/update-application-acceptance-status'
 
 type ApplicationRow = Record<string, unknown>
@@ -87,18 +87,18 @@ function readOptionalStringField(row: ApplicationRow, key: string): string | nul
 
 function stableRowKey(row: ApplicationRow, index: number): string {
   return (
-    readOptionalStringField(row, 'user_id') ??
     readOptionalStringField(row, 'id') ??
+    readOptionalStringField(row, 'user_id') ??
     `__${index}`
   )
 }
 
-/** Prefer auth user id in the URL so the segment is not tied to the table primary key when both exist. */
+/** Prefer table primary key so each application row (per cycle) has a stable detail URL. */
 function detailHrefForRow(row: ApplicationRow): string | null {
-  const userId = readOptionalStringField(row, 'user_id')
-  if (userId) return `/admin/applications/${encodeURIComponent(userId)}`
   const pk = readOptionalStringField(row, 'id')
   if (pk) return `/admin/applications/${encodeURIComponent(pk)}`
+  const userId = readOptionalStringField(row, 'user_id')
+  if (userId) return `/admin/applications/${encodeURIComponent(userId)}`
   return null
 }
 
@@ -372,6 +372,9 @@ export function AdminApplicationsTable({ applications }: Props) {
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
+                <th scope="col" className="whitespace-nowrap px-4 py-3 text-left font-semibold text-gray-700">
+                  Application id
+                </th>
                 {TABLE_TEXT_FIELDS.map((col) => (
                   <th
                     key={col.key}
@@ -410,6 +413,9 @@ export function AdminApplicationsTable({ applications }: Props) {
 
                 return (
                   <tr key={rowKey} className="align-top">
+                    <td className="max-w-[10rem] break-all px-4 py-3 font-mono text-xs text-gray-800">
+                      {rowPk ?? '—'}
+                    </td>
                     {TABLE_TEXT_FIELDS.map((col) => (
                       <td key={col.key} className="max-w-xs px-4 py-3 text-gray-700">
                         <div className="break-words">
@@ -431,8 +437,8 @@ export function AdminApplicationsTable({ applications }: Props) {
                           setStatusUpdatingKey(rowKey)
                           startStatusTransition(async () => {
                             const result = await updateApplicationAcceptanceStatus({
-                              applicationId: userId ? null : rowPk,
-                              applicationUserId: userId ?? null,
+                              applicationId: rowPk ?? null,
+                              applicationUserId: rowPk ? null : (userId ?? null),
                               acceptenceStatus: next,
                             })
                             setStatusUpdatingKey(null)
@@ -466,7 +472,7 @@ export function AdminApplicationsTable({ applications }: Props) {
                       )}
                     </td>
                     <td className="relative px-2 py-3 text-right align-top">
-                      {userId ? (
+                      {rowPk ? (
                         <details className="inline-block text-left">
                           <summary
                             className="cursor-pointer list-none rounded-md px-2 py-1 text-xl leading-none text-gray-600 hover:bg-gray-100 [&::-webkit-details-marker]:hidden"
@@ -482,7 +488,7 @@ export function AdminApplicationsTable({ applications }: Props) {
                               onClick={() => {
                                 if (
                                   !window.confirm(
-                                    'Permanently delete this applicant’s Auth account, user role, and application row? This cannot be undone.'
+                                    'Delete this application record only? Uploaded files for this application will be removed from storage. The applicant Auth account and other application cycles will not be deleted.',
                                   )
                                 ) {
                                   return
@@ -491,8 +497,8 @@ export function AdminApplicationsTable({ applications }: Props) {
                                 setDeleteRowKey(rowKey)
                                 startDeleteTransition(async () => {
                                   try {
-                                    const result = await deleteApplicantAccountAndApplication({
-                                      targetUserId: userId,
+                                    const result = await deleteApplicationRow({
+                                      applicationId: rowPk,
                                     })
                                     if ('error' in result && result.error) {
                                       setStatusMessage(result.error)
@@ -505,12 +511,12 @@ export function AdminApplicationsTable({ applications }: Props) {
                                 })
                               }}
                             >
-                              {deleteBusy ? 'Deleting…' : 'Delete account & application'}
+                              {deleteBusy ? 'Deleting…' : 'Delete application'}
                             </button>
                           </div>
                         </details>
                       ) : (
-                        <span className="text-gray-400" title="Applicant user id missing">
+                        <span className="text-gray-400" title="Application id missing">
                           —
                         </span>
                       )}

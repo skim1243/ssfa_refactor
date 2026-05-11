@@ -89,6 +89,7 @@ const SECTIONS: Section[] = [
 
 type Props = {
   application: Record<string, unknown> | null
+  applicationId?: string
 }
 
 type SubmittedDocumentLinkProps = {
@@ -139,8 +140,11 @@ function SubmittedDocumentLink({
 }
 
 // Renders upload zones and handles document upload flow for each required section.
-export function ApplicantDocumentsUpload({ application }: Props) {
+export function ApplicantDocumentsUpload({ application, applicationId }: Props) {
   const router = useRouter()
+  const rowApplicationId =
+    applicationId?.trim() ||
+    (application?.id != null && application.id !== '' ? String(application.id) : undefined)
   const [uploadingId, setUploadingId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -223,7 +227,7 @@ export function ApplicantDocumentsUpload({ application }: Props) {
         setRemovingColumn(null)
       }
     },
-    [latestBucketPaths, loadLatestBucketUrls, router]
+    [latestBucketPaths, loadLatestBucketUrls, router, rowApplicationId]
   )
 
   useEffect(() => {
@@ -308,7 +312,7 @@ export function ApplicantDocumentsUpload({ application }: Props) {
         setUploadingId(null)
       }
     },
-    [loadLatestBucketUrls, router]
+    [loadLatestBucketUrls, router, rowApplicationId]
   )
 
   // Handles standard file input selection and forwards file to shared upload logic.

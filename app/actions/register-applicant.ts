@@ -2,6 +2,16 @@
 
 import { redirect } from 'next/navigation'
 import { APPLICANT_DOCUMENT_BUCKETS } from '@/app/constants/applicant-document-buckets'
+import {
+  emptyApplicationInsertPayload,
+  upsertEmptyApplicationForCycle,
+} from '@/app/lib/applicant-application-payload'
+import {
+  applicationCycleKeyFromRow,
+  findCurrentRunningCycle,
+  type ApplicationCycleRow,
+} from '@/app/lib/application-cycle-helpers'
+import { runGlobalApplicationCycleSync } from '@/app/lib/applicant-portal-lifecycle'
 import { createServerClient } from '@/app/utils/supabase/server'
 
 export async function registerApplicant(
@@ -39,31 +49,28 @@ export async function registerApplicant(
     return { error: roleError.message }
   }
 
-  // Empty application row: only user_id and status fields set; rest null.
-  // Keys must match Supabase column names (adjust if your DB uses snake_case).
-  const { error: applicationError } = await supabase.from('Applications').insert({
-    user_id: user.id,
-    firstName: null,
-    lastName: null,
-    phoneNumber: null,
-    email: email.trim(),
-    parentsEmail: null,
-    school: null,
-    major: null,
-    enrollmentDoc: null,
-    officialTranscript: null,
-    incomeTax: null,
-    introVideo: null,
-    evidenceFile: null,
-    grade: null,
-    completionStatus: 'Pending',
-    acceptenceStatus: 'Pending',
-    submissionDate: null,
-  })
+  await runGlobalApplicationCycleSync(supabase)
 
-  if (applicationError) {
-    console.error('APPLICATION INSERT ERROR:', applicationError)
-    return { error: applicationError.message }
+  const { data: cycles, error: cyclesError } = await supabase.from('applicationCycle').select('*')
+  if (cyclesError) {
+    console.error('REGISTER APPLICANT (cycles):', cyclesError)
+    return { error: cyclesError.message }
+  }
+
+  const activeCycle = findCurrentRunningCycle((cycles ?? []) as ApplicationCycleRow[], Date.now())
+  const activeCycleKey =
+    activeCycle == null ? null : applicationCycleKeyFromRow(activeCycle as ApplicationCycleRow)
+
+  if (activeCycleKey) {
+    const { error: applicationError } = await upsertEmptyApplicationForCycle(
+      supabase,
+      emptyApplicationInsertPayload(user.id, email.trim(), activeCycleKey),
+    )
+
+    if (applicationError) {
+      console.error('APPLICATION UPSERT ERROR:', applicationError)
+      return { error: applicationError.message }
+    }
   }
 
   // Pre-create users/{uuid}/ in each document bucket so portal uploads

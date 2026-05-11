@@ -104,8 +104,9 @@ export default async function AdminUsersPage() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Users</h1>
         <p className="text-sm text-gray-600">
-          Search by UUID, email, or role. Update roles or delete a user. For applicants (or anyone with an application
-          row), document buckets are cleared before the application and Auth user are removed.
+          Search by UUID, email, or role. Update roles or delete a user. Deleting a user removes{' '}
+          <strong>all</strong> application rows tied to that UUID, clears applicant document storage for that account,
+          removes their role, and deletes the Auth user.
         </p>
       </div>
       <AdminUsersTable users={rows} />

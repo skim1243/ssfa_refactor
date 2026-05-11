@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useRef } from 'react'
+import { startTransition, useActionState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   createApplicationCycle,
@@ -49,7 +49,9 @@ export function AdminCreateApplicationCycleForm() {
             const iso = new Date(endLocal).toISOString()
             fd.set('endTime', iso)
           }
-          dispatch(fd)
+          startTransition(() => {
+            dispatch(fd)
+          })
         }}
       >
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -28,7 +28,8 @@ export function ApplicantPortalMenu({ application }: Props) {
   const [withdrawing, startWithdraw] = useTransition()
 
   const status = completionStatusOf(application)
-  const canWithdraw = application != null && status !== 'Withdrawn'
+  const canWithdraw =
+    application != null && status !== 'Withdrawn' && status !== 'Overdue' && status !== 'Submitted'
 
   async function handleLogout() {
     const supabase = createClient()
@@ -54,7 +55,9 @@ export function ApplicantPortalMenu({ application }: Props) {
   function confirmWithdraw() {
     setWithdrawError(null)
     startWithdraw(async () => {
-      const result = await withdrawApplication()
+      const id =
+        application?.id != null && application.id !== '' ? String(application.id) : undefined
+      const result = await withdrawApplication(id)
       if ('error' in result && result.error) {
         setWithdrawError(result.error)
         return
@@ -84,7 +87,7 @@ export function ApplicantPortalMenu({ application }: Props) {
             onClick={closeDetailsMenu}
             className="block w-full rounded px-3 py-2 text-left text-sm text-gray-900 hover:bg-gray-50"
           >
-            Application archive
+            Application portal directory
           </Link>
           {canWithdraw && (
             <button

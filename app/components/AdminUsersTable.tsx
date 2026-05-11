@@ -216,7 +216,7 @@ export function AdminUsersTable({ users }: Props) {
                             onClick={() => {
                               if (
                                 !window.confirm(
-                                  'Permanently delete this user? Applicant uploads, application row, role, and the Auth account will be removed. This cannot be undone.'
+                                  'Permanently delete this user? All application rows for this account, applicant uploads, the user role, and the Auth account will be removed. This cannot be undone.',
                                 )
                               ) {
                                 return

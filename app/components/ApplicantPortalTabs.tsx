@@ -10,9 +10,11 @@ type TabId = 'info' | 'documents'
 
 type Props = {
   application: Record<string, unknown> | null
+  /** Primary key of the row being edited (matches `?applicationId=` when deep-linked). */
+  applicationId?: string
 }
 
-export function ApplicantPortalTabs({ application }: Props) {
+export function ApplicantPortalTabs({ application, applicationId }: Props) {
   const router = useRouter()
   const [submitting, startTransition] = useTransition()
   const [submitMessage, setSubmitMessage] = useState<string | null>(null)
@@ -32,8 +34,12 @@ export function ApplicantPortalTabs({ application }: Props) {
     if (!confirmed) return
 
     setSubmitMessage(null)
+    const targetId =
+      applicationId?.trim() ||
+      (application?.id != null && application.id !== '' ? String(application.id) : undefined)
+
     startTransition(async () => {
-      const result = await submitApplication()
+      const result = await submitApplication(targetId)
       if ('error' in result && result.error) {
         setSubmitMessage(result.error)
         return
@@ -110,7 +116,10 @@ export function ApplicantPortalTabs({ application }: Props) {
             aria-labelledby="tab-applicant-info"
             className="flex min-h-[200px] w-full justify-start text-sm text-green-950/80"
           >
-            <ApplicantInformationForm initialApplication={application} />
+            <ApplicantInformationForm
+              initialApplication={application}
+              applicationId={applicationId?.trim() || undefined}
+            />
           </div>
         )}
         {active === 'documents' && (
@@ -120,7 +129,10 @@ export function ApplicantPortalTabs({ application }: Props) {
             aria-labelledby="tab-documents"
             className="flex min-h-[200px] w-full flex-col text-sm text-green-950/80"
           >
-            <ApplicantDocumentsUpload application={application} />
+            <ApplicantDocumentsUpload
+              application={application}
+              applicationId={applicationId?.trim() || undefined}
+            />
           </div>
         )}
 
